@@ -1,24 +1,24 @@
 import requests
 from telegram import Update
-from telegram.ext import Updater, MessageHandler, Filters, CallbackContext
+from telegram.ext import Application, MessageHandler, filters, CommandHandler
 
-# Replace with your bot token from BotFather
+# Replace with your bot token
 TOKEN = "7482868409:AAEnZDq8GddbtQmXIPMD-K7Swkv3aNxj3DY"
 
 # Required channel usernames (without @)
-REQUIRED_CHANNELS = ["Xstream_links1", "Sr_Robots"]
+REQUIRED_CHANNELS = ["Xstream_links2", "Sr_robots"]
 
 # API Endpoint
 API_URL = "https://turecaller.pikaapis0.workers.dev/?number={}"
 
-def check_subscription(user_id: int, bot) -> bool:
+async def check_subscription(user_id: int, bot) -> bool:
     """Check if the user has joined both required channels."""
     for channel in REQUIRED_CHANNELS:
         try:
-            chat_member = bot.get_chat_member(f"@{channel}", user_id)
+            chat_member = await bot.get_chat_member(f"@{channel}", user_id)
             if chat_member.status in ["left", "kicked"]:
                 return False  # User is not subscribed
-        except Exception as e:
+        except Exception:
             return False  # If any error occurs, assume not subscribed
     return True  # User is subscribed to both channels
 
@@ -38,7 +38,7 @@ def fetch_caller_details(phone_number: str) -> str:
         formatted_response = (
             f"📞 *Caller Details:*\n"
             f"📝 *Truecaller Name:* {truecaller_name}\n"
-            f"❓ *Truecaller2 Name:* {unknown_name}\n"
+            f"❓ *Unknown Name:* {unknown_name}\n"
             f"📡 *Carrier:* {carrier}\n"
             f"📟 *Local Format:* {local_format}\n"
             f"📍 *Location:* {location}"
@@ -46,17 +46,17 @@ def fetch_caller_details(phone_number: str) -> str:
         
         return formatted_response
     else:
-        return "⚠️ Error fetching details. Please try again later."
+        return "⚠️ Please Send Number With Your Country Format (Like- +919276382726)."
 
-def handle_message(update: Update, context: CallbackContext) -> None:
+async def handle_message(update: Update, context) -> None:
     """Handle user messages and fetch details if a valid phone number is sent."""
     user_message = update.message.text.strip()
     user_id = update.message.from_user.id
 
     # Check if user is subscribed
-    if not check_subscription(user_id, context.bot):
+    if not await check_subscription(user_id, context.bot):
         channels_list = "\n".join([f"👉 [Join @{ch}](https://t.me/{ch})" for ch in REQUIRED_CHANNELS])
-        update.message.reply_text(
+        await update.message.reply_text(
             f"⚠️ *You must join the following channels to use this bot:*\n\n{channels_list}",
             parse_mode="Markdown",
             disable_web_page_preview=True
@@ -66,24 +66,23 @@ def handle_message(update: Update, context: CallbackContext) -> None:
     # If user is subscribed, proceed with fetching caller details
     if user_message.startswith("+") and user_message[1:].isdigit():
         result = fetch_caller_details(user_message)
-        update.message.reply_text(result, parse_mode="Markdown")
+        await update.message.reply_text(result, parse_mode="Markdown")
     else:
-        update.message.reply_text("⚠️ Please send a valid phone number in international format (e.g., +918317394605).")
+        await update.message.reply_text("⚠️ Please send a valid phone number in international format (e.g., +918317394605).")
 
-def start(update: Update, context: CallbackContext) -> None:
+async def start(update: Update, context) -> None:
     """Start command handler."""
-    update.message.reply_text("Welcome! Send a phone number to get caller details.")
+    await update.message.reply_text("Welcome! Send a phone number to get caller details.")
 
 def main():
     """Main function to run the bot."""
-    updater = Updater(TOKEN, use_context=True)
-    dp = updater.dispatcher
+    app = Application.builder().token(TOKEN).build()
 
-    dp.add_handler(MessageHandler(Filters.text & ~Filters.command, handle_message))
-    dp.add_handler(MessageHandler(Filters.command, start))  # Handles /start
+    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message))
+    app.add_handler(CommandHandler("start", start))
 
-    updater.start_polling()
-    updater.idle()
+    print("Bot is running...")
+    app.run_polling()
 
 if __name__ == "__main__":
     main()

@@ -68,11 +68,11 @@ async def handle_message(update: Update, context) -> None:
         result = fetch_caller_details(user_message)
         await update.message.reply_text(result, parse_mode="Markdown")
     else:
-        await update.message.reply_text("⚠️ Please send a valid phone number in international format (e.g., +918317394605).")
+        await update.message.reply_text("⚠️ Please send a valid phone number in international format (e.g., +919273628266).")
 
 async def start(update: Update, context) -> None:
     """Start command handler."""
-    await update.message.reply_text("Welcome! Send a phone number to get caller details.")
+    await update.message.reply_text("Welcome! Send a phone number to get caller details. In International Format (e.g., +919282726283")
 
 def main():
     """Main function to run the bot."""

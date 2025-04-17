@@ -3,10 +3,10 @@ from telegram import Update
 from telegram.ext import Application, MessageHandler, filters, CommandHandler
 
 # Replace with your bot token
-TOKEN = "7482868409:AAEnZDq8GddbtQmXIPMD-K7Swkv3aNxj3DY"
+TOKEN = "7482868409:AAEr4ZA_OJLh6jX3bxYq1hpGxusrfnSVleU"
 
 # Required channel usernames (without @)
-REQUIRED_CHANNELS = ["Xstream_links2", "Sr_robots"]
+REQUIRED_CHANNELS = ["Sr_robots", "Sr_robots_backup"]
 
 # API Endpoint
 API_URL = "https://turecaller.pikaapis0.workers.dev/?number={}"
@@ -37,8 +37,8 @@ def fetch_caller_details(phone_number: str) -> str:
 
         formatted_response = (
             f"📞 *Caller Details:*\n"
-            f"📝 *Truecaller Name:* {truecaller_name}\n"
-            f"❓ *Unknown Name:* {unknown_name}\n"
+            f"📝 *Real Name:* {truecaller_name}\n"
+            f"❓ *Truecaller Name:* {unknown_name}\n"
             f"📡 *Carrier:* {carrier}\n"
             f"📟 *Local Format:* {local_format}\n"
             f"📍 *Location:* {location}"
